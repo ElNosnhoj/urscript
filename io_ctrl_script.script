@@ -1,0 +1,53 @@
+
+#=locals==============================
+ctrled = [False, False, False, False, False, False, False, False]
+ostate = [False, False, False, False, False, False, False, False]
+ondel = [0, 0, 0, 0, 0, 0, 0, 0]
+offdel = [2, 2, 2, 2, 2, 2, 2, 2]
+trackr = [0, 0, 0, 0, 0, 0, 0, 0]
+
+#=utils=========================
+def SetIO(i, on_delay=0, off_delay=0, state = False, enable = True):
+    ondel[i] = on_delay
+    offdel[i] = off_delay
+    ostate[i] = state
+    ctrled[i] = enable
+end
+
+def SetState(i, state):
+    ostate[i] = state
+end
+def SetEnable(i, enable):
+    ctrled[i] = enable
+end
+
+#=main thread=========================
+thread Thread_io():
+    while (True):
+        i = 0
+        while (i < 8):
+            if (ctrled[i]):
+                if (ostate[i]):
+                    if (ondel[i] != 0):
+                        state = get_digital_out(i)
+                        if (state and runner - trackr[i] > ondel[i]):
+                            set_digital_out(i, False)
+                            trackr[i] = runner
+                        elif (not state and runner - trackr[i] > offdel[i]):
+                            set_digital_out(i, True)
+                            trackr[i] = runner
+                        end
+                    else:
+                        set_digital_out(i, True)
+                    end
+                else:
+                    set_digital_out(i, False)
+                end
+            end
+            i = i + 1
+            sync()
+        end
+    end
+end
+
+run Thread_io()

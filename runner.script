@@ -1,0 +1,24 @@
+#=Globals=============================
+#=locals==============================
+runner = 0
+
+#=utils===============================
+def runner_reset():
+  runner = 0
+end
+#=get timer===========================
+def get_runner():
+  return runner
+end
+
+#=main thread=========================
+thread Thread_Runner():
+  while(True):
+    runner = runner + get_steptime()
+    #sleep(0.5)
+    #runner = runner + 0.5 
+    sync()
+  end
+end
+
+run Thread_Runner()

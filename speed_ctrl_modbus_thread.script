@@ -1,0 +1,34 @@
+
+#this is speed ctrl through modbus
+
+socket_open("127.0.0.1", 30002)
+spd_reg = 136
+
+old_val = read_port_register(spd_reg)
+if (old_val < 5) :
+    old_val = 100
+    write_port_register(spd_reg, old_val)
+end
+socket_send_string("set speed")
+socket_send_string(old_val * 0.01)
+socket_send_byte(10)
+
+thread speed_switch_thread():
+    while True:
+        val = read_port_register(spd_reg)
+        if (val != old_val):
+            old_val = val
+            write_port_register(spd_reg, old_val)
+            socket_send_string("set speed")
+            socket_send_string(old_val * 0.01)
+            socket_send_byte(10)
+        end
+        sleep(0.5)
+        sync()
+    end
+end
+
+run speed_switch_thread()
+
+
+
